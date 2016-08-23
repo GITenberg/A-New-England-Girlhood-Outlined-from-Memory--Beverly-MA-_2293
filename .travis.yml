@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Ip+qGU+xTdKWelDmyqf35eh53HTOftKFrfm/weQS8yj04Oq4LoFxyu3IZ4K36+Nge5+/q+pEx7YCsDNoNdtpfuqWQq3Z/rH0+9TymK8LBWjyjCOC4li39IPDLu3XyAvCkkC2SiXtTZ8zCILRFUp1R410AhBgbRAZ5BRb6+MnYGSVBx6ugbxQGWHvD6zo19HuXSzrNvl3xbLVjoU0xhoCgoIpMALJ5s4nNwCMp0sqLRaZnvbI2dnReZ+m8zTAQNd9CwdVwmdgij+FNUscdMKTFUoBzwPDeOwdyzuZ2aEE04jVL6wtNcLi753Zm4yMblRzi8D/3189y//Og1+3EkQNxzRS7TEbBwOYyoLkCK5x6fTE29C0bpzd7RCG05vx2GA0tD03Nn7Kfppz7M/YpNOQd4/rMvGdnOskKweLOm6znUsclzdbSkoKFsGEs1MuVJ0ovlr7brPDXQj157ZzpcnxAgTeTWNs7Tp4+LydHowHmW9lDTA/WrdgWGwE5yCzI/3Vg8sdOXj23Ox+g6DDQ3GPwvSnfABCH3f9DA1Syj9QFRUq/9AslIFxLH4i5HscII/NynTBDH8aUkaNdaHxfPqaXO0qt5eT5b9spa7zwto3N6sueSpPlGCVSZT8r3I8j9t5pj7aAiAwGucytvEcBRmyb4AB8R0u56jxe2xVxshSJJg=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/A-New-England-Girlhood-Outlined-from-Memory--Beverly-MA-_2293
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
